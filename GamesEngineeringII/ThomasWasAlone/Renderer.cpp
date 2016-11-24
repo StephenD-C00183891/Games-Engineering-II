@@ -65,6 +65,19 @@ void Renderer::drawRect(const Rect& r, const Colour& c) {
 	sr.x = (int)r.pos.x;
 	sr.y = (int)r.pos.y;
 	SDL_RenderFillRect(sdl_renderer, &sr);
+	//SDL_RenderDrawRect(sdl_renderer, &sr);
+
+}
+
+void Renderer::drawRectOutline(const Rect& r, const Colour& c) {
+	SDL_SetRenderDrawColor(sdl_renderer, c.r, c.g, c.b, c.a);
+	SDL_Rect sr;
+	sr.h = (int)r.size.h;
+	sr.w = (int)r.size.w;
+	sr.x = (int)r.pos.x;
+	sr.y = (int)r.pos.y;
+	//SDL_RenderFillRect(sdl_renderer, &sr);
+	SDL_RenderDrawRect(sdl_renderer, &sr);
 
 }
 
@@ -72,6 +85,7 @@ void Renderer::drawRect(const Rect& r, const Colour& c) {
 void Renderer::drawWorldRect(const Rect &r, const Colour &c)
 {
 	drawRect(worldToScreen(r),c);
+	drawRectOutline(worldToScreen(r), Colour(255, 255, 255));
 }
 
 void Renderer::present() { //swap buffers
