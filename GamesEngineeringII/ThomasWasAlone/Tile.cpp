@@ -12,7 +12,6 @@ Tile::~Tile()
 }
 
 void Tile::Render(Renderer& r) {
-	col.r = 255;
 	r.drawWorldRect(rect,col);
 }
 

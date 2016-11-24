@@ -17,7 +17,14 @@ class Game:public EventListener
 	std::vector<GameObject*> gameObjects;
 	std::vector<Tile*> tiles;
 
-	int MAXTILES = 1000;
+	int MAXTILES;
+	int line;
+	int column;
+	int lineSize;
+	int yPos;
+
+	int tileWidth;
+	int tileHeight;
 
 	unsigned int lastTime;//time of last update;
 

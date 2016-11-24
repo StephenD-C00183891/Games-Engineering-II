@@ -84,8 +84,8 @@ void Renderer::drawRectOutline(const Rect& r, const Colour& c) {
 //draw a rectin world coordinates
 void Renderer::drawWorldRect(const Rect &r, const Colour &c)
 {
-	drawRect(worldToScreen(r),c);
-	drawRectOutline(worldToScreen(r), Colour(255, 255, 255));
+	drawRect(r,c);
+	drawRectOutline(r, Colour(255, 255, 255));
 }
 
 void Renderer::present() { //swap buffers

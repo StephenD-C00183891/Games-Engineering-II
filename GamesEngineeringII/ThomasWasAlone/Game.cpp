@@ -41,32 +41,38 @@ bool Game::init() {
 
 	Rect vpRect(vpBottomLeft,vpSize);
 	renderer.setViewPort(vpRect);
+
+	lineSize = 1000;
+	MAXTILES = (lineSize * lineSize);
+
+	yPos = 0;
 	
-	int line = 0;
-	int col = 0;
-	int lineSize = sqrt(MAXTILES);
-	int yPos = vpSize.h/2;
+	line = 0;
+	column = 0;
+	lineSize = sqrt(MAXTILES);
+
+	tileWidth = winSize.w / lineSize;
+	tileHeight = winSize.h / lineSize;
+
 
 	for (int i = 0; i < MAXTILES; i++)
 	{
-		Tile* tile = new Tile(Rect((-vpSize.w / 2 + line), ((yPos - 0.5)-col), 1, 1));
+		Tile* tile = new Tile(Rect(0 + (tileWidth*line), 0 + (tileHeight*column), tileWidth, tileHeight));
+		//Tile* tile = new Tile(Rect((-vpSize.w + line), ((yPos - 0.5)-column), winSize.w/lineSize, winSize.h/lineSize));
 
-		tile->col = Colour(255, 100, 100);
+		tile->col = Colour(0, 0, 0);
 		gameObjects.push_back(tile);
 		line += 1;
+
 		if(line == lineSize)
 		{
-			col += 1;
+			column += 1;
 			line = 0;
 		}
 	}
 
 	lastTime = LTimer::gameTime();
 
-	//we want this box to respond to REVERSE event
-	//inputManager.AddListener(EventListener::Event::REVERSE, box1);
-
-	//want game loop to pause
 	inputManager.AddListener(EventListener::Event::PAUSE, this);
 	inputManager.AddListener(EventListener::Event::QUIT, this);
 
@@ -76,7 +82,6 @@ bool Game::init() {
 
 void Game::destroy()
 {
-	//empty out the game object vector before quitting
 	for (std::vector<GameObject*>::iterator i = gameObjects.begin(); i != gameObjects.end(); i++) {
 		delete *i;
 	}
@@ -85,7 +90,6 @@ void Game::destroy()
 	renderer.destroy();
 }
 
-//** calls update on all game entities*/
 void Game::update()
 {
 	unsigned int currentTime = LTimer::gameTime();//millis since game started
