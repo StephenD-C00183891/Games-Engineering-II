@@ -29,6 +29,9 @@ Game::~Game()
 bool Game::init() {	
 	Size2D winSize(800,600);
 
+	wS.h = winSize.h;
+	wS.w = winSize.w;
+
 	//creates our renderer, which looks after drawing and the window
 	renderer.init(winSize,"Simple SDL App");
 
@@ -42,11 +45,13 @@ bool Game::init() {
 	Rect vpRect(vpBottomLeft,vpSize);
 	renderer.setViewPort(vpRect);
 
-	lineSize = 1000;
+	lineSize = 20;
 	MAXTILES = (lineSize * lineSize);
-
+	wallSpawn = 12;
+	spawnCount = 0;
 	yPos = 0;
 	
+
 	line = 0;
 	column = 0;
 	lineSize = sqrt(MAXTILES);
@@ -57,19 +62,42 @@ bool Game::init() {
 
 	for (int i = 0; i < MAXTILES; i++)
 	{
-		Tile* tile = new Tile(Rect(0 + (tileWidth*line), 0 + (tileHeight*column), tileWidth, tileHeight));
-		//Tile* tile = new Tile(Rect((-vpSize.w + line), ((yPos - 0.5)-column), winSize.w/lineSize, winSize.h/lineSize));
+	//	wallSpawn = rand() % 20 + 12;
 
-		tile->col = Colour(0, 0, 0);
-		gameObjects.push_back(tile);
-		line += 1;
+		if (spawnCount == wallSpawn)
+		{
+			int wallWidth = rand() % 4 + 1;
+			int wallHeight = rand() % 4 + 1;
+			Tile* tile = new Tile(Rect(0 + (tileWidth*line), 0 + (tileHeight*column), (tileWidth * wallWidth), (tileHeight*wallHeight)), Tile::Type::Wall);
+			spawnCount = 0;
+			gameObjects.push_back(tile);
+			line += wallWidth;
+		}
+		else
+		{
+			Tile* tile = new Tile(Rect(0 + (tileWidth*line), 0 + (tileHeight*column), tileWidth, tileHeight), Tile::Type::Walkable);
+			gameObjects.push_back(tile);
+			line += 1;
+			spawnCount += 1;
+		}
 
-		if(line == lineSize)
+		//tile->col = Colour(0, 0, 0);
+		
+
+		if(line >= lineSize)
 		{
 			column += 1;
 			line = 0;
 		}
 	}
+
+	p1 = new Player(Rect(0, 0, tileWidth, tileHeight));
+	p1->col = Colour(255, 0, 0);
+
+	inputManager.AddListener(EventListener::Event::LEFT, this);
+	inputManager.AddListener(EventListener::Event::RIGHT, this);
+	inputManager.AddListener(EventListener::Event::UP, p1);
+	inputManager.AddListener(EventListener::Event::DOWN, p1);
 
 	lastTime = LTimer::gameTime();
 
@@ -114,6 +142,8 @@ void Game::render()
 		(*i)->Render(renderer);
 	}
 
+	p1->Render(renderer);
+
 	renderer.present();// display the new frame (swap buffers)
 }
 
@@ -150,5 +180,23 @@ void Game::onEvent(EventListener::Event evt) {
 	if (evt == EventListener::Event::QUIT) {
 		quit=true;
 	}
+
+	if (evt == EventListener::Event::LEFT)
+	{
+		p1->MoveLeft(wS);
+	}
+	if (evt == EventListener::Event::RIGHT)
+	{
+		p1->MoveRight(wS);
+	}
+	if (evt == EventListener::Event::UP)
+	{
+		p1->MoveUp(wS);
+	}
+	if (evt == EventListener::Event::DOWN)
+	{
+		p1->MoveDown(wS);
+	}
+
 
 }

@@ -85,7 +85,7 @@ void Renderer::drawRectOutline(const Rect& r, const Colour& c) {
 void Renderer::drawWorldRect(const Rect &r, const Colour &c)
 {
 	drawRect(r,c);
-	drawRectOutline(r, Colour(255, 255, 255));
+	drawRectOutline(r, Colour(100, 100, 100));
 }
 
 void Renderer::present() { //swap buffers

@@ -49,8 +49,18 @@ void InputManager::ProcessInput()
 				case SDLK_SPACE:
 					Dispatch(EventListener::Event::PAUSE);
 					break;
-				case SDLK_r:
-					Dispatch(EventListener::Event::REVERSE);
+				
+				case SDLK_a:
+					Dispatch(EventListener::Event::LEFT);
+					break;
+				case SDLK_d:
+					Dispatch(EventListener::Event::RIGHT);
+					break;
+				case SDLK_w:
+					Dispatch(EventListener::Event::UP);
+					break;
+				case SDLK_s:
+					Dispatch(EventListener::Event::DOWN);
 					break;
 
 				}

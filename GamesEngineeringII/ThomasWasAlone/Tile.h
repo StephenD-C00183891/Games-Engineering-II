@@ -8,12 +8,20 @@ class Tile:public GameObject, public EventListener
 {
 	
 public:
-	Tile(Rect r) :rect(r) { };
+
+	enum class Type
+	{
+		Wall,
+		Walkable
+	};
+
+	Tile(Rect r, Type t) ;
 	Tile();
 	~Tile();
 
-	Rect rect;
-	Colour col;
+	Rect _rect;
+	Type _type;
+	Colour _col;
 
 	void Render(Renderer & r);
 

@@ -3,8 +3,19 @@
 #include "Tile.h"
 
 
-Tile::Tile()
+Tile::Tile(Rect r, Type t)
+	: _rect(r)
+	, _type(t)
 {
+	switch (_type)
+	{//set the colour based on its type
+	case Type::Wall:
+		_col = Colour(0, 0, 0, 255);
+		break;
+	case Type::Walkable:
+		_col = Colour(255, 255, 255, 255);
+		break;
+	}
 }
 
 Tile::~Tile()
@@ -12,7 +23,7 @@ Tile::~Tile()
 }
 
 void Tile::Render(Renderer& r) {
-	r.drawWorldRect(rect,col);
+	r.drawWorldRect(_rect, _col);
 }
 
 
