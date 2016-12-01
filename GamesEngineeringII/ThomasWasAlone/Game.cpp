@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include <iostream>
+
 using namespace std;
 
 
@@ -48,9 +49,7 @@ bool Game::init() {
 	lineSize = 20;
 	MAXTILES = (lineSize * lineSize);
 	wallSpawn = 12;
-	spawnCount = 0;
-	yPos = 0;
-	
+	enemyCount = 10;
 
 	line = 0;
 	column = 0;
@@ -60,11 +59,11 @@ bool Game::init() {
 	tileHeight = winSize.h / lineSize;
 
 
-	for (int i = 0; i < MAXTILES; i++)
+	for (int i = 0; i < lineSize; i++)
 	{
 		std::vector<Tile*> temp_vect;
 
-		for (int i = 0; i < lineSize; i++)
+		for (int k = 0; k < lineSize; k++)
 		{
 			Tile* tile = new Tile(Rect(0 + (tileWidth*line), 0 + (tileHeight*column), tileWidth, tileHeight), Tile::Type::Walkable);
 			line += 1;
@@ -78,19 +77,19 @@ bool Game::init() {
 			tiles.push_back(temp_vect);
 		}
 	}
-		/*Tile* tile = new Tile(Rect(0 + (tileWidth*line), 0 + (tileHeight*column), tileWidth, tileHeight), Tile::Type::Walkable);
-		gameObjects.push_back(tile);
-		line += 1;
-		spawnCount += 1;
 
-		if(line >= lineSize)
-		{
-			column += 1;
-			line = 0;
-		}*/
-	//}
+	for (int i = 0; i < enemyCount; i++)
+	{
+		int randX = rand() % (lineSize - 1);
+		int randY = rand() % (lineSize - 1);
 
-	p1 = new Player(Rect(0, 0, tileWidth, tileHeight));
+		Enemy* en = new Enemy(Rect(tiles[randX][randY]->GetPosition().x, tiles[randX][randY]->GetPosition().y, tileWidth, tileHeight));
+		enemies.push_back(en);
+		enemies[i]->col = Colour(0, 255, 0);
+
+	}
+
+	p1 = new Player(Rect(tiles[0][0]->GetPosition().x, tiles[0][0]->GetPosition().y, tileWidth, tileHeight));
 	p1->col = Colour(255, 0, 0);
 
 	inputManager.AddListener(EventListener::Event::LEFT, this);
@@ -120,6 +119,11 @@ void Game::destroy()
 		}
 	}
 
+	for (int i = 0; i < enemies.size(); i++)
+	{
+		delete enemies[i];
+	}
+
 	tiles.clear();
 	renderer.destroy();
 }
@@ -139,7 +143,10 @@ void Game::update()
 			(*col)->Update(deltaTime);
 		}
 	}
-
+	for (int i = 0; i < enemies.size(); i++)
+	{
+		enemies[i]->Update(deltaTime);
+	}
 
 	lastTime = currentTime;
 }
@@ -157,6 +164,11 @@ void Game::render()
 		{
 			(*col)->Render(renderer);
 		}
+	}
+
+	for (int i = 0; i < enemies.size(); i++)
+	{
+		enemies[i]->Render(renderer);
 	}
 
 	p1->Render(renderer);
@@ -191,11 +203,9 @@ void Game::onEvent(EventListener::Event evt) {
 	if (evt == EventListener::Event::PAUSE) {
 		pause = !pause;
 	}
-	
 	if (evt == EventListener::Event::QUIT) {
 		quit=true;
 	}
-
 	if (evt == EventListener::Event::LEFT)
 	{
 		p1->MoveLeft(wS);

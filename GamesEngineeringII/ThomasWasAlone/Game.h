@@ -17,7 +17,7 @@ class Game:public EventListener
 	Renderer renderer;
 
 	std::vector<std::vector<Tile*>> tiles;
-	std::vector < Enemy*> enemies; 
+	std::vector <Enemy*> enemies; 
 
 	Player* p1;
 	Size2D wS;
@@ -26,7 +26,8 @@ class Game:public EventListener
 	int line;
 	int column;
 	int lineSize;
-	int yPos;
+	//int yPos;
+	int enemyCount;
 
 	int tileWidth;
 	int tileHeight;

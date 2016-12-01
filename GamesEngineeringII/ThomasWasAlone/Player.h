@@ -4,6 +4,7 @@
 #include "GameObject.h"
 #include "BasicTypes.h"
 #include "EventListener.h"
+#include <vector>
 
 class Player :public GameObject, public EventListener
 {

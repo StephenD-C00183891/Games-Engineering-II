@@ -36,3 +36,16 @@ void Tile::onEvent(EventListener::Event evt)
 {
 
 }
+
+Rect Tile::GetRect()
+{
+	return _rect;
+}
+
+
+Point2D Tile::GetPosition()
+{
+	Point2D pos = _rect.pos;
+
+	return pos;
+}

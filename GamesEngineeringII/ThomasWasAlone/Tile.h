@@ -29,6 +29,10 @@ public:
 
 	void onEvent(EventListener::Event);
 
+	Rect GetRect();
+
+	Point2D GetPosition();
+
 
 };
 
