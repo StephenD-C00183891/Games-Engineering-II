@@ -1,34 +1,31 @@
 #pragma once
+#pragma once
+
+#include <vector>>
 
 #include "GameObject.h"
 #include "BasicTypes.h"
 #include "EventListener.h"
+#include "Tile.h"
 
-class Tile:public GameObject, public EventListener
+class astar
 {
-	
+
 public:
 
-	enum class Type
-	{
-		Wall,
-		Walkable
-	};
 
-	Tile(Rect r, Type t) ;
-	Tile();
-	~Tile();
+	
+	astar();
+	~astar();
 
-	Rect _rect;
-	Type _type;
-	Colour _col;
+	std::vector<Tile*> openList;
+	std::vector<Tile*> closedList;
+
 
 	void Render(Renderer & r);
 
 	void Update(unsigned int deltaTime);
 
 	void onEvent(EventListener::Event);
-
-
 };
 

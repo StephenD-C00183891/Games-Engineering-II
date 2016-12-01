@@ -62,34 +62,33 @@ bool Game::init() {
 
 	for (int i = 0; i < MAXTILES; i++)
 	{
-	//	wallSpawn = rand() % 20 + 12;
+		std::vector<Tile*> temp_vect;
 
-		if (spawnCount == wallSpawn)
-		{
-			int wallWidth = rand() % 4 + 1;
-			int wallHeight = rand() % 4 + 1;
-			Tile* tile = new Tile(Rect(0 + (tileWidth*line), 0 + (tileHeight*column), (tileWidth * wallWidth), (tileHeight*wallHeight)), Tile::Type::Wall);
-			spawnCount = 0;
-			gameObjects.push_back(tile);
-			line += wallWidth;
-		}
-		else
+		for (int i = 0; i < lineSize; i++)
 		{
 			Tile* tile = new Tile(Rect(0 + (tileWidth*line), 0 + (tileHeight*column), tileWidth, tileHeight), Tile::Type::Walkable);
-			gameObjects.push_back(tile);
 			line += 1;
-			spawnCount += 1;
+			temp_vect.push_back(tile);
 		}
 
-		//tile->col = Colour(0, 0, 0);
-		
+		if (line >= lineSize)
+		{
+			column += 1;
+			line = 0;
+			tiles.push_back(temp_vect);
+		}
+	}
+		/*Tile* tile = new Tile(Rect(0 + (tileWidth*line), 0 + (tileHeight*column), tileWidth, tileHeight), Tile::Type::Walkable);
+		gameObjects.push_back(tile);
+		line += 1;
+		spawnCount += 1;
 
 		if(line >= lineSize)
 		{
 			column += 1;
 			line = 0;
-		}
-	}
+		}*/
+	//}
 
 	p1 = new Player(Rect(0, 0, tileWidth, tileHeight));
 	p1->col = Colour(255, 0, 0);
@@ -110,11 +109,18 @@ bool Game::init() {
 
 void Game::destroy()
 {
-	for (std::vector<GameObject*>::iterator i = gameObjects.begin(); i != gameObjects.end(); i++) {
-		delete *i;
+	vector< vector<Tile*> >::iterator row;
+	vector<Tile*>::iterator col;
+
+	for (row = tiles.begin(); row != tiles.end(); row++)
+	{
+		for(col = row->begin(); col != row->end(); col++)
+		{
+			delete *col;
+		}
 	}
 
-	gameObjects.clear();
+	tiles.clear();
 	renderer.destroy();
 }
 
@@ -123,49 +129,58 @@ void Game::update()
 	unsigned int currentTime = LTimer::gameTime();//millis since game started
 	unsigned int deltaTime = currentTime - lastTime;//time since last update
 
-	//call update on all game objects
-	for (std::vector<GameObject*>::iterator i = gameObjects.begin(); i != gameObjects.end(); i++) {
-		(*i)->Update(deltaTime);
+	vector< vector<Tile*> >::iterator row;
+	vector<Tile*>::iterator col;
+
+	for (row = tiles.begin(); row != tiles.end(); row++)
+	{
+		for (col = row->begin(); col != row->end(); col++)
+		{
+			(*col)->Update(deltaTime);
+		}
 	}
-	//save the curent time for next frame
+
+
 	lastTime = currentTime;
 }
 
-//** calls render on all game entities*/
-
 void Game::render()
 {
-	renderer.clear(Colour(0,0,0));// prepare for new frame
-	
-	//render every object
-	for (std::vector<GameObject*>::iterator i = gameObjects.begin(), e= gameObjects.end(); i != e; i++) {
-		(*i)->Render(renderer);
+	renderer.clear(Colour(0,0,0));
+
+	vector< vector<Tile*> >::iterator row;
+	vector<Tile*>::iterator col;
+
+	for (row = tiles.begin(); row != tiles.end(); row++)
+	{
+		for (col = row->begin(); col != row->end(); col++)
+		{
+			(*col)->Render(renderer);
+		}
 	}
 
 	p1->Render(renderer);
 
-	renderer.present();// display the new frame (swap buffers)
+	renderer.present();
 }
 
-/** update and render game entities*/
 void Game::loop()
 {
-	LTimer capTimer;//to cap framerate
+	LTimer capTimer;
 
 	int frameNum = 0;
-	while (!quit) { //game loop
+	while (!quit) { 
 		capTimer.start();
 
 		inputManager.ProcessInput();
 
-		if(!pause) //in pause mode don't bother updateing
+		if(!pause) 
 			update();
 		render();
 
-		int frameTicks = capTimer.getTicks();//time since start of frame
+		int frameTicks = capTimer.getTicks();
 		if (frameTicks < SCREEN_TICKS_PER_FRAME)
 		{
-			//Wait remaining time before going to next frame
 			SDL_Delay(SCREEN_TICKS_PER_FRAME - frameTicks);
 		}
 	}
@@ -197,6 +212,4 @@ void Game::onEvent(EventListener::Event evt) {
 	{
 		p1->MoveDown(wS);
 	}
-
-
 }

@@ -8,6 +8,7 @@
 #include "EventListener.h"
 #include "Tile.h"
 #include "Player.h"
+#include "Enemy.h"
 
 /** The game objct whic manages the game loop*/
 class Game:public EventListener
@@ -15,8 +16,8 @@ class Game:public EventListener
 	InputManager inputManager;
 	Renderer renderer;
 
-	std::vector<GameObject*> gameObjects;
-	std::vector<Tile*> tiles;
+	std::vector<std::vector<Tile*>> tiles;
+	std::vector < Enemy*> enemies; 
 
 	Player* p1;
 	Size2D wS;
