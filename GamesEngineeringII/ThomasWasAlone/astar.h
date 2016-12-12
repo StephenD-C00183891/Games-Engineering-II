@@ -25,6 +25,8 @@ public:
 	std::vector<Tile*> adjacentList;
 	std::vector<Tile*> path;
 
+	std::vector<Tile*>::iterator it;
+
 	Tile* lowest;
 
 	void Render(Renderer & r);
@@ -38,7 +40,7 @@ public:
 
 	void Update(unsigned int deltaTime);
 	void setCurrent();
-	int sortByFcost(std::vector<Tile*> openLIst);
+	void sortByFcost(std::vector<Tile*> openLIst);
 
 	void Path(int startRow, int startCol, Tile * goal, std::vector<std::vector<Tile*>>& _tiles, int lineSize);
 

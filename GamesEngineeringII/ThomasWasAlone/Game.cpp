@@ -101,13 +101,14 @@ bool Game::init() {
 		}
 	}
 
-	//for (int i = 0; i < enemyCount; i++)
-	//{
+	for (int i = 0; i < enemyCount; i++)
+	{
 		//star.FindPath(tiles[29][29], tiles[0][0], tiles, lineSize);
-	//	star.Path(enemies[i]->row, enemies[i]->column, tiles[0][0], tiles, lineSize);
-		
-			
-	//}
+		//star.Path(enemies[i]->row, enemies[i]->column, tiles[4][4], tiles, lineSize);
+		//star.Path(0, 0, tiles[0][0], tiles, lineSize);
+	
+	}
+	//star.Path(enemies[0]->row, enemies[0]->column, tiles[4][4], tiles, lineSize);
 
 	inputManager.AddListener(EventListener::Event::LEFT, this);
 	inputManager.AddListener(EventListener::Event::RIGHT, this);
@@ -119,7 +120,7 @@ bool Game::init() {
 	inputManager.AddListener(EventListener::Event::PAUSE, this);
 	inputManager.AddListener(EventListener::Event::QUIT, this);
 
-	star.Path(0, 0, tiles[20][20], tiles, lineSize);
+	star.Path(0, 10, tiles[15][6], tiles, lineSize);
 
 	return true;
 }
