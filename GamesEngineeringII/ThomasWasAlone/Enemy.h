@@ -10,12 +10,14 @@ class Enemy :public GameObject, public EventListener
 {
 
 public:
-	Enemy(Rect r) :rect(r) { };
+	Enemy(Rect r, int row, int col) :rect(r), row(row), column(col) { };
 	Enemy();
 	~Enemy();
 
 	Rect rect;
 	Colour col;
+	int row;
+	int column;
 
 
 	void Render(Renderer & r);

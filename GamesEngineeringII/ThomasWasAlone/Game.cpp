@@ -34,7 +34,7 @@ bool Game::init() {
 	wS.w = winSize.w;
 
 	//creates our renderer, which looks after drawing and the window
-	renderer.init(winSize,"Simple SDL App");
+	renderer.init(winSize,"A* Project");
 
 	//set up the viewport
 	//we want the vp centred on origin and 20 units wide
@@ -46,10 +46,10 @@ bool Game::init() {
 	Rect vpRect(vpBottomLeft,vpSize);
 	renderer.setViewPort(vpRect);
 
-	lineSize = 20;
+	lineSize = 30;
 	MAXTILES = (lineSize * lineSize);
 	wallSpawn = 12;
-	enemyCount = 10;
+	enemyCount = 5;
 
 	line = 0;
 	column = 0;
@@ -65,7 +65,7 @@ bool Game::init() {
 
 		for (int k = 0; k < lineSize; k++)
 		{
-			Tile* tile = new Tile(Rect(0 + (tileWidth*line), 0 + (tileHeight*column), tileWidth, tileHeight), Tile::Type::Walkable);
+			Tile* tile = new Tile(Rect(0 + (tileWidth*line), 0 + (tileHeight*column), tileWidth, tileHeight), Tile::Type::Walkable, false, 0, 0, 0, i, k);
 			line += 1;
 			temp_vect.push_back(tile);
 		}
@@ -77,20 +77,37 @@ bool Game::init() {
 			tiles.push_back(temp_vect);
 		}
 	}
+	cout << "Tiles Loaded" << endl;
+
+	p1 = new Player(Rect(tiles[0][0]->GetPosition().x, tiles[0][0]->GetPosition().y, tileWidth, tileHeight));
+	tiles[0][0]->_full = true;
+	p1->col = Colour(255, 0, 0);
 
 	for (int i = 0; i < enemyCount; i++)
 	{
 		int randX = rand() % (lineSize - 1);
 		int randY = rand() % (lineSize - 1);
 
-		Enemy* en = new Enemy(Rect(tiles[randX][randY]->GetPosition().x, tiles[randX][randY]->GetPosition().y, tileWidth, tileHeight));
-		enemies.push_back(en);
-		enemies[i]->col = Colour(0, 255, 0);
-
+		if (tiles[randX][randY]->_full == false)
+		{
+			Enemy* en = new Enemy(Rect(tiles[randX][randY]->GetPosition().x, tiles[randX][randY]->GetPosition().y, tileWidth, tileHeight), randX, randY);
+			enemies.push_back(en);
+			enemies[i]->col = Colour(0, 255, 0);
+			tiles[randX][randY]->_full = true;
+		}
+		else if (tiles[randX][randY]->_full == true)
+		{
+			i--;
+		}
 	}
 
-	p1 = new Player(Rect(tiles[0][0]->GetPosition().x, tiles[0][0]->GetPosition().y, tileWidth, tileHeight));
-	p1->col = Colour(255, 0, 0);
+	//for (int i = 0; i < enemyCount; i++)
+	//{
+		//star.FindPath(tiles[29][29], tiles[0][0], tiles, lineSize);
+	//	star.Path(enemies[i]->row, enemies[i]->column, tiles[0][0], tiles, lineSize);
+		
+			
+	//}
 
 	inputManager.AddListener(EventListener::Event::LEFT, this);
 	inputManager.AddListener(EventListener::Event::RIGHT, this);
@@ -101,6 +118,8 @@ bool Game::init() {
 
 	inputManager.AddListener(EventListener::Event::PAUSE, this);
 	inputManager.AddListener(EventListener::Event::QUIT, this);
+
+	star.Path(0, 0, tiles[20][20], tiles, lineSize);
 
 	return true;
 }
