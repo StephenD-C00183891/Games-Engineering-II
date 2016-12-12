@@ -32,7 +32,7 @@ bool Game::init() {
 
 	wS.h = winSize.h;
 	wS.w = winSize.w;
-
+	i = 0;
 	//creates our renderer, which looks after drawing and the window
 	renderer.init(winSize,"A* Project");
 
@@ -103,12 +103,8 @@ bool Game::init() {
 
 	for (int i = 0; i < enemyCount; i++)
 	{
-		//star.FindPath(tiles[29][29], tiles[0][0], tiles, lineSize);
-		//star.Path(enemies[i]->row, enemies[i]->column, tiles[4][4], tiles, lineSize);
-		//star.Path(0, 0, tiles[0][0], tiles, lineSize);
-	
+		enemyPath = star.Path(28, 28, tiles[0][0], tiles, lineSize);
 	}
-	//star.Path(enemies[0]->row, enemies[0]->column, tiles[4][4], tiles, lineSize);
 
 	inputManager.AddListener(EventListener::Event::LEFT, this);
 	inputManager.AddListener(EventListener::Event::RIGHT, this);
@@ -120,7 +116,7 @@ bool Game::init() {
 	inputManager.AddListener(EventListener::Event::PAUSE, this);
 	inputManager.AddListener(EventListener::Event::QUIT, this);
 
-	star.Path(0, 10, tiles[15][6], tiles, lineSize);
+	//star.Path(0, 10, tiles[15][6], tiles, lineSize);
 
 	return true;
 }
@@ -225,21 +221,5 @@ void Game::onEvent(EventListener::Event evt) {
 	}
 	if (evt == EventListener::Event::QUIT) {
 		quit=true;
-	}
-	if (evt == EventListener::Event::LEFT)
-	{
-		p1->MoveLeft(wS);
-	}
-	if (evt == EventListener::Event::RIGHT)
-	{
-		p1->MoveRight(wS);
-	}
-	if (evt == EventListener::Event::UP)
-	{
-		p1->MoveUp(wS);
-	}
-	if (evt == EventListener::Event::DOWN)
-	{
-		p1->MoveDown(wS);
 	}
 }

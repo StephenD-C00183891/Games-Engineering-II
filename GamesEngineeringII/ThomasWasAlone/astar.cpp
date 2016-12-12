@@ -16,11 +16,6 @@ void astar::Render(Renderer& r) {
 
 }
 
-void astar::setCurrent()
-{
-
-}
-
 void astar::sortByFcost(std::vector<Tile*> openList)
 {
 
@@ -33,7 +28,7 @@ void astar::sortByFcost(std::vector<Tile*> openList)
 	}
 }
 
-void astar::Path(int startRow, int startCol, Tile* goal, std::vector<std::vector<Tile*>>& _tiles, int lineSize)
+std::vector<Tile*> astar::Path(int startRow, int startCol, Tile* goal, std::vector<std::vector<Tile*>>& _tiles, int lineSize)
 {
 
 	//Calculate h cost from every tile to goal
@@ -49,12 +44,13 @@ void astar::Path(int startRow, int startCol, Tile* goal, std::vector<std::vector
 	_tiles[startRow][startCol]->_g = 0;
 
 	lowest = _tiles[startRow][startCol];
-
+	lowest->setMarked(true);
 	path.push_back(_tiles[startRow][startCol]);
 	
 	currentRow = startRow;
 	currentCol = startCol;
 	openList.push_back(_tiles[currentRow][currentCol]);
+
 	int prev_g = _tiles[startRow][startCol]->_g;
 
 	while (openList.size() != 0)
@@ -66,7 +62,6 @@ void astar::Path(int startRow, int startCol, Tile* goal, std::vector<std::vector
 			openList.push_back(_tiles[currentRow][currentCol]);
 
 			closedList.push_back(openList.at(0));
-			//openList.pop_back();
 
 			fillList(currentRow, currentCol, _tiles, lineSize);
 
@@ -78,7 +73,9 @@ void astar::Path(int startRow, int startCol, Tile* goal, std::vector<std::vector
 
 			sortByFcost(openList);
 
+			
 			path.push_back(lowest);
+			lowest->setMarked(true);
 			prev_g = lowest->_g;
 			currentRow = lowest->_row;
 			currentCol = lowest->_column;
@@ -86,6 +83,7 @@ void astar::Path(int startRow, int startCol, Tile* goal, std::vector<std::vector
 			if (_tiles[currentRow][currentCol] == goal)
 			{
 				openList.clear();
+				return path;
 			}
 		}
 	}
@@ -93,37 +91,37 @@ void astar::Path(int startRow, int startCol, Tile* goal, std::vector<std::vector
 
 void astar::fillList(int startRow, int startCol, std::vector<std::vector<Tile*>>& _tiles, int lineSize)
 {
-	if (startRow >= 1)
+	if (startRow > 0)
 	{
-		if (_tiles[startRow - 1][startCol]->marked == false)
-		{
+	//	if (_tiles[startRow - 1][startCol]->marked == false)
+		//{
 			openList.push_back(_tiles[startRow - 1][startCol]);
-			_tiles[startRow - 1][startCol]->setMarked(true);
-		}
+			//_tiles[startRow - 1][startCol]->setMarked(true);
+		//}
 	}
-	if (startCol >= 1)
+	if (startCol > 0)
 	{
-		if (_tiles[startRow][startCol - 1]->marked == false)
-		{
+		//if (_tiles[startRow][startCol - 1]->marked == false)
+		//{
 			openList.push_back(_tiles[startRow][startCol - 1]);
-			_tiles[startRow][startCol - 1]->setMarked(true);
-		}
+			//_tiles[startRow][startCol - 1]->setMarked(true);
+		//}
 	}
 	if (startCol < lineSize)
 	{
-		if (_tiles[startRow][startCol + 1]->marked == false)
-		{
+		//if (_tiles[startRow][startCol + 1]->marked == false)
+		//{
 			openList.push_back(_tiles[startRow][startCol + 1]);
-			_tiles[startRow][startCol + 1]->setMarked(true);
-		}
+			//_tiles[startRow][startCol + 1]->setMarked(true);
+		//}
 	}
 	if (startRow < lineSize)
 	{
-		if (_tiles[startRow + 1][startCol]->marked == false)
-		{
+		//if (_tiles[startRow + 1][startCol]->marked == false)
+		//{
 			openList.push_back(_tiles[startRow + 1][startCol]);
-			_tiles[startRow + 1][startCol]->setMarked(true);
-		}
+			//_tiles[startRow + 1][startCol]->setMarked(true);
+		//}
 	}
 }
 

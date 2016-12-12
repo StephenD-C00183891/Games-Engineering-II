@@ -5,6 +5,7 @@
 #include "GameObject.h"
 #include "BasicTypes.h"
 #include "EventListener.h"
+#include "Tile.h"
 
 class Enemy :public GameObject, public EventListener
 {
@@ -26,6 +27,7 @@ public:
 
 	void onEvent(EventListener::Event);
 
+	void setPos(Tile* pathTile);
 	void MoveLeft(Size2D winSize);
 	void MoveRight(Size2D winSize);
 	void MoveUp(Size2D winSize);

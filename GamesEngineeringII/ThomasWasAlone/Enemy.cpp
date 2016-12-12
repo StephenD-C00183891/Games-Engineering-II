@@ -26,6 +26,12 @@ void Enemy::onEvent(EventListener::Event evt)
 
 }
 
+void Enemy::setPos(Tile* pathTile)
+{
+	rect.pos.x = (pathTile->_column * rect.size.w);
+	rect.pos.y = (pathTile->_row * rect.size.h);
+}
+
 void Enemy::MoveLeft(Size2D winSize)
 {
 	if (rect.pos.x >= 0)
