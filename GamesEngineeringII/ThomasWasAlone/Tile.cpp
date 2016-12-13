@@ -3,9 +3,9 @@
 #include "Tile.h"
 
 
-Tile::Tile(Rect r, Type t, bool full, int f, int g, int h, int row, int column)
+Tile::Tile(Rect r, bool marked, bool full, int f, int g, int h, int row, int column)
 	: _rect(r)
-	, _type(t)
+	, marked(marked)
 	, _full(full)
 	, _f(f)
 	, _g(g)
@@ -13,23 +13,24 @@ Tile::Tile(Rect r, Type t, bool full, int f, int g, int h, int row, int column)
 	, _row(row)
 	, _column(column)
 {
-	switch (_type)
-	{//set the colour based on its type
-	case Type::Wall:
-		_col = Colour(0, 0, 0, 255);
-		break;
-	case Type::Walkable:
-		_col = Colour(255, 255, 255, 255);
-		break;
-	}
+
 }
+
 
 Tile::~Tile()
 {
+
 }
 
 void Tile::Render(Renderer& r) {
+
+
 	r.drawWorldRect(_rect, _col);
+}
+
+void Tile::Render2(Renderer& r, int offsetX, int offsetY) {
+
+	r.drawWorldRect(Rect(_rect.pos.x - offsetX, _rect.pos.y - offsetY, _rect.size.w, _rect.size.h), _col);
 }
 
 

@@ -25,10 +25,11 @@ public:
 	std::vector<Tile*> adjacentList;
 	std::vector<Tile*> path;
 
+
 	std::vector<Tile*>::iterator it;
 
 	Tile* lowest;
-
+	Tile* start_low;
 	void Render(Renderer & r);
 
 	void fillList(int startRow, int startCol, std::vector<std::vector<Tile*>>& _tiles, int lineSize);

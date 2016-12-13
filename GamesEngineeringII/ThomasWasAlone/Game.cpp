@@ -32,21 +32,24 @@ bool Game::init() {
 
 	wS.h = winSize.h;
 	wS.w = winSize.w;
-	i = 0;
+	cameraRow = 0;
+	cameraCol = 0;
 	//creates our renderer, which looks after drawing and the window
 	renderer.init(winSize,"A* Project");
+
+	camera=(Rect((tileWidth*cameraCol), (tileHeight*cameraRow), 800, 600));
 
 	//set up the viewport
 	//we want the vp centred on origin and 20 units wide
 	float aspectRatio = winSize.w / winSize.h;
-	float vpWidth = 20;
+	float vpWidth = 10;
 	Size2D vpSize(vpWidth, vpWidth /aspectRatio);
 	Point2D vpBottomLeft( -vpSize.w / 2, - vpSize.h / 2);
 
 	Rect vpRect(vpBottomLeft,vpSize);
 	renderer.setViewPort(vpRect);
 
-	lineSize = 30;
+	lineSize = 100;
 	MAXTILES = (lineSize * lineSize);
 	wallSpawn = 12;
 	enemyCount = 5;
@@ -55,8 +58,8 @@ bool Game::init() {
 	column = 0;
 	lineSize = sqrt(MAXTILES);
 
-	tileWidth = winSize.w / lineSize;
-	tileHeight = winSize.h / lineSize;
+	tileWidth = 40;
+	tileHeight = 40;
 
 
 	for (int i = 0; i < lineSize; i++)
@@ -65,7 +68,7 @@ bool Game::init() {
 
 		for (int k = 0; k < lineSize; k++)
 		{
-			Tile* tile = new Tile(Rect(0 + (tileWidth*line), 0 + (tileHeight*column), tileWidth, tileHeight), Tile::Type::Walkable, false, 0, 0, 0, i, k);
+			Tile* tile = new Tile(Rect(0 + (tileWidth*line), 0 + (tileHeight*column), tileWidth, tileHeight), false, false, 0, 0, 0, i, k);
 			line += 1;
 			temp_vect.push_back(tile);
 		}
@@ -77,7 +80,16 @@ bool Game::init() {
 			tiles.push_back(temp_vect);
 		}
 	}
-	cout << "Tiles Loaded" << endl;
+
+	for (int i = 0; i < lineSize; i++)
+	{
+		for (int k = 0; k < lineSize; k++)
+		{
+
+		}
+	}
+
+	//cout << "Tiles Loaded" << endl;
 
 	p1 = new Player(Rect(tiles[0][0]->GetPosition().x, tiles[0][0]->GetPosition().y, tileWidth, tileHeight));
 	tiles[0][0]->_full = true;
@@ -101,9 +113,9 @@ bool Game::init() {
 		}
 	}
 
-	for (int i = 0; i < enemyCount; i++)
+	for (int i = 0; i < enemies.size(); i++)
 	{
-		enemyPath = star.Path(28, 28, tiles[0][0], tiles, lineSize);
+		enemies[i]->path = star.Path(enemies[i]->row, enemies[i]->column, tiles[0][0], tiles, lineSize);
 	}
 
 	inputManager.AddListener(EventListener::Event::LEFT, this);
@@ -116,7 +128,7 @@ bool Game::init() {
 	inputManager.AddListener(EventListener::Event::PAUSE, this);
 	inputManager.AddListener(EventListener::Event::QUIT, this);
 
-	//star.Path(0, 10, tiles[15][6], tiles, lineSize);
+	//star.Path(25, 25, tiles[27][27], tiles, lineSize);
 
 	return true;
 }
@@ -150,7 +162,11 @@ void Game::update()
 	unsigned int deltaTime = currentTime - lastTime;//time since last update
 
 	vector< vector<Tile*> >::iterator row;
+	vector<Enemy*>::iterator i;
 	vector<Tile*>::iterator col;
+	
+	//camera.pos.x = tileWidth * cameraCol;
+	//camera.pos.y = tileHeight * cameraRow;
 
 	for (row = tiles.begin(); row != tiles.end(); row++)
 	{
@@ -159,9 +175,10 @@ void Game::update()
 			(*col)->Update(deltaTime);
 		}
 	}
-	for (int i = 0; i < enemies.size(); i++)
+
+	for (i = enemies.begin(); i != enemies.end(); i++)
 	{
-		enemies[i]->Update(deltaTime);
+		(*i)->Update(deltaTime);
 	}
 
 	lastTime = currentTime;
@@ -171,14 +188,25 @@ void Game::render()
 {
 	renderer.clear(Colour(0,0,0));
 
-	vector< vector<Tile*> >::iterator row;
-	vector<Tile*>::iterator col;
+	int cameraOffsetX = camera.pos.x * tileWidth;
+	int cameraOffsetY = camera.pos.y * tileHeight;
 
-	for (row = tiles.begin(); row != tiles.end(); row++)
+	//vector< vector<Tile*> >::iterator row;
+	//vector<Tile*>::iterator col;
+
+	/*for (row = tiles.begin(); row != tiles.end(); row++)
 	{
 		for (col = row->begin(); col != row->end(); col++)
 		{
 			(*col)->Render(renderer);
+		}
+	}*/
+
+	for (int row = camera.pos.y; row < (camera.size.h / tileHeight) + cameraOffsetY; row++)
+	{
+		for (int col = camera.pos.x; col < (camera.size.w / tileWidth) + cameraOffsetX; col++)
+		{
+			tiles[row][col]->Render2(renderer, cameraOffsetX, cameraOffsetY);
 		}
 	}
 
@@ -221,5 +249,33 @@ void Game::onEvent(EventListener::Event evt) {
 	}
 	if (evt == EventListener::Event::QUIT) {
 		quit=true;
+	}
+	if (evt == EventListener::Event::LEFT) {
+		if (camera.pos.x >= 0)
+		{
+			//cameraCol -= 1;
+			camera.pos.x -= 1;
+		}
+	}
+	if (evt == EventListener::Event::RIGHT) {
+		if (camera.pos.x +camera.size.w <= tiles[0][lineSize-1]->GetPosition().x)
+		{
+			//cameraCol += 1;
+			camera.pos.x += 1;
+		}
+	}
+	if (evt == EventListener::Event::UP) {
+		if (camera.pos.y >= 0)
+		{
+			//cameraRow += 1;
+			camera.pos.y += 1;
+		}
+	}
+	if (evt == EventListener::Event::DOWN) {
+		if (camera.pos.y + camera.size.h < tiles[lineSize-1][0]->GetPosition().y)
+		{
+			//cameraRow -= 1;
+			camera.pos.y -= 1;
+		}
 	}
 }
