@@ -15,20 +15,68 @@ const int SCREEN_FPS = 100;
 const int SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
 
 
+struct ThreadData
+{
+	int index = -1;
+	int _row;
+	int _col;
+	Tile* goal;
+};
+
+SDL_mutex* threadLock = SDL_CreateMutex();
+std::queue<ThreadData> jobQueue;
+std::vector<std::vector<Tile*>> tiles;
+std::vector <Enemy*> enemies;
+std::vector<Tile*> waypoints;
+astar star;
+int lineSize;
+
+bool compare(Tile* i, Tile* j) {
+	int i2 = i->_column;
+	int j2 = j->_column;
+	return (i2>j2);
+}
+
+int Game::threaded(void *data)
+{
+	while (true)
+	{
+		if (jobQueue.size() != 0) {};
+
+		SDL_LockMutex(threadLock);
+		ThreadData tData;
+		if (jobQueue.size() > 0)
+		{
+			tData = jobQueue.front();
+			jobQueue.pop();
+		}
+
+		SDL_UnlockMutex(threadLock);
+
+		if (tData.index != -1)
+		{
+			//enemies[i]->path = star.Path(enemies[i]->row, enemies[i]->column, waypoints[j], tiles, lineSize);
+			enemies[tData.index]->path = star.Path(tData._row, tData._col, waypoints, tiles, lineSize);
+		}
+	}
+
+	return 0;
+}
+
 Game::Game()
 {
 	pause = false;
 	quit = false;
 }
 
-
 Game::~Game()
 {
-}
 
+}
 
 bool Game::init() {	
 	Size2D winSize(800,600);
+	//threadLock = SDL_CreateMutex();
 
 	wS.h = winSize.h;
 	wS.w = winSize.w;
@@ -37,7 +85,7 @@ bool Game::init() {
 	//creates our renderer, which looks after drawing and the window
 	renderer.init(winSize,"A* Project");
 
-	camera=(Rect((tileWidth*cameraCol), (tileHeight*cameraRow), 800, 600));
+	//camera=(Rect((tileWidth*cameraCol), (tileHeight*cameraRow), 800, 600));
 
 	//set up the viewport
 	//we want the vp centred on origin and 20 units wide
@@ -49,17 +97,17 @@ bool Game::init() {
 	Rect vpRect(vpBottomLeft,vpSize);
 	renderer.setViewPort(vpRect);
 
-	lineSize = 100;
+	lineSize = 50;
 	MAXTILES = (lineSize * lineSize);
 	wallSpawn = 12;
-	enemyCount = 5;
+	enemyCount = 2;
 
 	line = 0;
 	column = 0;
 	lineSize = sqrt(MAXTILES);
 
-	tileWidth = 40;
-	tileHeight = 40;
+	tileWidth = winSize.w / lineSize;
+	tileHeight = winSize.h / lineSize;
 
 
 	for (int i = 0; i < lineSize; i++)
@@ -68,9 +116,19 @@ bool Game::init() {
 
 		for (int k = 0; k < lineSize; k++)
 		{
-			Tile* tile = new Tile(Rect(0 + (tileWidth*line), 0 + (tileHeight*column), tileWidth, tileHeight), false, false, 0, 0, 0, i, k);
-			line += 1;
-			temp_vect.push_back(tile);
+
+			if (k == (lineSize / 4) && i <(lineSize/4)* 3 || k == (lineSize / 4) * 2 && i > (lineSize / 4) || k == (lineSize / 4) * 3 && i <(lineSize / 4) * 3)
+			{
+				Tile* tile = new Tile(Rect(0 + (tileWidth*line), 0 + (tileHeight*column), tileWidth, tileHeight), true, false, 0, 0, 0, i, k);
+				line += 1;
+				temp_vect.push_back(tile);
+			}
+			else
+			{
+				Tile* tile = new Tile(Rect(0 + (tileWidth*line), 0 + (tileHeight*column), tileWidth, tileHeight), false, false, 0, 0, 0, i, k);
+				line += 1;
+				temp_vect.push_back(tile);
+			}
 		}
 
 		if (line >= lineSize)
@@ -81,24 +139,46 @@ bool Game::init() {
 		}
 	}
 
-	for (int i = 0; i < lineSize; i++)
-	{
-		for (int k = 0; k < lineSize; k++)
-		{
+	p1 = new Player(Rect(tiles[0][0]->GetPosition().x, tiles[0][0]->GetPosition().y, tileWidth, tileHeight));
+	tiles[0][0]->_full = true;
+	//tiles[1][0]->marked == true;
+	p1->col = Colour(255, 0, 0);
+	waypoints.push_back(tiles[0][0]);
 
+	for (int row = 0; row < lineSize; row++)
+	{
+		for (int col = 0; col < lineSize; col++)
+		{
+			if (row > 0)
+			{
+				if (tiles[row - 1][col]->marked == true)
+				{
+					if (tiles[row][col]->marked == false)
+					{
+						waypoints.push_back(tiles[row][col]);
+					}
+				}
+			}
+			if (row < lineSize - 1)
+			{
+				if (tiles[row + 1][col]->marked == true)
+				{
+					if (tiles[row][col]->marked == false)
+					{
+						waypoints.push_back(tiles[row][col]);
+					}
+				}
+			}
 		}
 	}
 
-	//cout << "Tiles Loaded" << endl;
-
-	p1 = new Player(Rect(tiles[0][0]->GetPosition().x, tiles[0][0]->GetPosition().y, tileWidth, tileHeight));
-	tiles[0][0]->_full = true;
-	p1->col = Colour(255, 0, 0);
+	cout << "Tiles Loaded" << endl;
 
 	for (int i = 0; i < enemyCount; i++)
 	{
 		int randX = rand() % (lineSize - 1);
-		int randY = rand() % (lineSize - 1);
+		//int randY = rand() % (lineSize - 1) + (lineSize/4);
+		int randY = lineSize - 5;
 
 		if (tiles[randX][randY]->_full == false)
 		{
@@ -113,10 +193,31 @@ bool Game::init() {
 		}
 	}
 
+	std::sort(waypoints.begin(), waypoints.end(), compare);
+
 	for (int i = 0; i < enemies.size(); i++)
 	{
-		enemies[i]->path = star.Path(enemies[i]->row, enemies[i]->column, tiles[0][0], tiles, lineSize);
+		//for (int j = 0; j < waypoints.size(); j++)
+		//{
+		
+		//	if (j == 0)
+		//	{
+				jobCreation(i, enemies[i]->row, enemies[i]->column, tiles[0][0]);
+				//enemies[i]->path = star.Path(enemies[i]->row, enemies[i]->column, waypoints[j], tiles, lineSize);
+		//	}
+		//	else
+		//	{
+				//jobCreation(i, waypoints[j-1]->_row, waypoints[j-1]->_column, waypoints[j]);
+				//enemies[i]->path = star.Path(waypoints[j - 1]->_row, waypoints[j - 1]->_column, waypoints[j], tiles, lineSize);
+			//}
+		//}
+				//star.path.clear();
+				//star.fullPath.clear();
 	}
+
+	SDL_Thread * thread1 = SDL_CreateThread(threaded, "T1", NULL);
+	//SDL_Thread * thread2 = SDL_CreateThread(threaded, "T2", NULL);
+
 
 	inputManager.AddListener(EventListener::Event::LEFT, this);
 	inputManager.AddListener(EventListener::Event::RIGHT, this);
@@ -128,11 +229,8 @@ bool Game::init() {
 	inputManager.AddListener(EventListener::Event::PAUSE, this);
 	inputManager.AddListener(EventListener::Event::QUIT, this);
 
-	//star.Path(25, 25, tiles[27][27], tiles, lineSize);
-
 	return true;
 }
-
 
 void Game::destroy()
 {
@@ -154,6 +252,19 @@ void Game::destroy()
 
 	tiles.clear();
 	renderer.destroy();
+}
+
+void Game::jobCreation(int index, int row, int col, Tile* goal)
+{
+	ThreadData Tdata;
+	Tdata.index = index;
+	Tdata._row = row;
+	Tdata._col = col;
+	Tdata.goal = goal;
+
+	SDL_LockMutex(threadLock);
+	jobQueue.push(Tdata);
+	SDL_UnlockMutex(threadLock);
 }
 
 void Game::update()
@@ -180,6 +291,10 @@ void Game::update()
 	{
 		(*i)->Update(deltaTime);
 	}
+	//enemies[0]->Update(deltaTime);
+	//enemies[1]->Update(deltaTime);
+	//enemies[2]->Update(deltaTime);
+	//enemies[3]->Update(deltaTime);
 
 	lastTime = currentTime;
 }
@@ -188,27 +303,27 @@ void Game::render()
 {
 	renderer.clear(Colour(0,0,0));
 
-	int cameraOffsetX = camera.pos.x * tileWidth;
-	int cameraOffsetY = camera.pos.y * tileHeight;
+	//int cameraOffsetX = camera.pos.x * tileWidth;
+	//int cameraOffsetY = camera.pos.y * tileHeight;
 
-	//vector< vector<Tile*> >::iterator row;
-	//vector<Tile*>::iterator col;
+	vector< vector<Tile*> >::iterator row;
+	vector<Tile*>::iterator col;
 
-	/*for (row = tiles.begin(); row != tiles.end(); row++)
+	for (row = tiles.begin(); row != tiles.end(); row++)
 	{
 		for (col = row->begin(); col != row->end(); col++)
 		{
 			(*col)->Render(renderer);
 		}
-	}*/
-
-	for (int row = camera.pos.y; row < (camera.size.h / tileHeight) + cameraOffsetY; row++)
-	{
-		for (int col = camera.pos.x; col < (camera.size.w / tileWidth) + cameraOffsetX; col++)
-		{
-			tiles[row][col]->Render2(renderer, cameraOffsetX, cameraOffsetY);
-		}
 	}
+
+	//for (int row = camera.pos.y; row < (camera.size.h / tileHeight) + cameraOffsetY; row++)
+	//{
+	//	for (int col = camera.pos.x; col < (camera.size.w / tileWidth) + cameraOffsetX; col++)
+	//	{
+	//		tiles[row][col]->Render2(renderer, cameraOffsetX, cameraOffsetY);
+	//	}
+	//}
 
 	for (int i = 0; i < enemies.size(); i++)
 	{

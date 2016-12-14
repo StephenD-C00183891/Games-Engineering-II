@@ -171,7 +171,6 @@
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="ThreadPool.h" />
     <ClInclude Include="Tile.h" />
   </ItemGroup>
   <ItemGroup>
@@ -189,7 +188,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="SDL_Starter_app.cpp" />
-    <ClCompile Include="ThreadPool.cpp" />
     <ClCompile Include="Tile.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
