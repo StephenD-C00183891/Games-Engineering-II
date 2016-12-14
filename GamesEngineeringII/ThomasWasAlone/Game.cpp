@@ -41,7 +41,7 @@ int Game::threaded(void *data)
 {
 	while (true)
 	{
-		if (jobQueue.size() != 0) {};
+		if (jobQueue.size() != 0) { };
 
 		SDL_LockMutex(threadLock);
 		ThreadData tData;
@@ -55,7 +55,6 @@ int Game::threaded(void *data)
 
 		if (tData.index != -1)
 		{
-			//enemies[i]->path = star.Path(enemies[i]->row, enemies[i]->column, waypoints[j], tiles, lineSize);
 			enemies[tData.index]->path = star.Path(tData._row, tData._col, waypoints, tiles, lineSize);
 		}
 	}
@@ -97,7 +96,7 @@ bool Game::init() {
 	Rect vpRect(vpBottomLeft,vpSize);
 	renderer.setViewPort(vpRect);
 
-	lineSize = 50;
+	lineSize = 100;
 	MAXTILES = (lineSize * lineSize);
 	wallSpawn = 12;
 	enemyCount = 2;
@@ -141,7 +140,6 @@ bool Game::init() {
 
 	p1 = new Player(Rect(tiles[0][0]->GetPosition().x, tiles[0][0]->GetPosition().y, tileWidth, tileHeight));
 	tiles[0][0]->_full = true;
-	//tiles[1][0]->marked == true;
 	p1->col = Colour(255, 0, 0);
 	waypoints.push_back(tiles[0][0]);
 
@@ -212,7 +210,7 @@ bool Game::init() {
 			//}
 		//}
 				//star.path.clear();
-				//star.fullPath.clear();
+				star.fullPath.clear();
 	}
 
 	SDL_Thread * thread1 = SDL_CreateThread(threaded, "T1", NULL);
