@@ -18,18 +18,31 @@ void Enemy::Render(Renderer& r) {
 
 void Enemy::Update(unsigned int deltaTime) {
 
+	timer += 1;
 
+	if (timer > 5)
+	{
+		if (pathCount < path.size())
+		{
+			setPos(path[pathCount]);
+			timer = 0;
+			pathCount++;
+		}
+	}
 }
 
 void Enemy::onEvent(EventListener::Event evt)
 {
-
+	
 }
 
 void Enemy::setPos(Tile* pathTile)
 {
-	rect.pos.x = (pathTile->_column * rect.size.w);
-	rect.pos.y = (pathTile->_row * rect.size.h);
+	//if (pathTile->_full == false)
+	//{
+		rect.pos.x = (pathTile->_column * rect.size.w);
+		rect.pos.y = (pathTile->_row * rect.size.h);
+	//}
 }
 
 void Enemy::MoveLeft(Size2D winSize)

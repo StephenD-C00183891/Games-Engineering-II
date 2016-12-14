@@ -9,18 +9,12 @@ class Tile:public GameObject, public EventListener
 	
 public:
 
-	enum class Type : Uint8
-	{
-		Wall,
-		Walkable
-	};
 
-	Tile(Rect r, Type t, bool full, int f, int g, int h, int row, int col) ;
+	Tile(Rect r, bool mark, bool full, int f, int g, int h, int row, int col) ;
 	Tile();
 	~Tile();
 
 	Rect _rect;
-	Type _type;
 	Colour _col;
 	bool _full;
 	int _f;
@@ -36,6 +30,7 @@ public:
 	Tile * prev;
 
 	void Render(Renderer & r);
+	void Render2(Renderer & r, int offsetX, int offsetY);
 
 	void Update(unsigned int deltaTime);
 

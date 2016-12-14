@@ -17,21 +17,25 @@ class Game:public EventListener
 	InputManager inputManager;
 	Renderer renderer;
 
-	std::vector<std::vector<Tile*>> tiles;
-	std::vector <Enemy*> enemies; 
+	
 	std::vector <Tile*> enemyPath;
+	//std::vector<Tile*> waypoints;
+
+	Rect camera;
 
 	Player* p1;
 	Size2D wS;
-	astar star;
+
+	//SDL_Thread * thread1;
 
 	int MAXTILES;
 	int line;
 	int column;
-	int lineSize;
+	//int lineSize;
 
 	int enemyCount;
-	int i;
+	int cameraRow;
+	int cameraCol;
 	float tileWidth;
 	float tileHeight;
 	int wallSpawn;
@@ -43,11 +47,16 @@ class Game:public EventListener
 	bool quit;
 
 public:
+	static int threaded(void * data);
 	Game();
 	~Game();
 
 	bool init();
 	void destroy();
+
+	//static std::queue<ThreadData> jobQueue;
+
+	void jobCreation(int index, int row, int col, Tile* goal);
 
 	void update();
 	void render();

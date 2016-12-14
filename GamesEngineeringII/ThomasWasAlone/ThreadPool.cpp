@@ -3,7 +3,7 @@
 #include "ThreadPool.h"
 
 
-ThreadPool::ThreadPool()
+ThreadPool::ThreadPool(): threadLock(SDL_CreateMutex()), semaphore(SDL_CreateSemaphore(0)), conditional(SDL_CreateCond())
 {
 
 }
@@ -13,27 +13,41 @@ ThreadPool::~ThreadPool()
 
 }
 
-void ThreadPool::Update(unsigned int deltaTime) 
+Enemy* ThreadPool::getJob()
 {
-
+	if (enemyQueue.size() > 0)
+	{
+		Enemy * e = enemyQueue.front();
+		enemyQueue.pop();
+		return e;
+	}
 }
 
-void ThreadPool::onEvent(EventListener::Event evt)
+int ThreadPool::getWorker(void *data)
 {
 
+
+	return 0;
 }
 
-void ThreadPool::getJob()
+void ThreadPool::fillQueue(Enemy * enemy)
 {
-
+	SDL_mutexP(threadLock);
+	enemyQueue.push(enemy);
+	SDL_mutexV(threadLock);
 }
 
-void ThreadPool::worker()
+SDL_mutex * ThreadPool::getLock()
 {
-
+	return threadLock;
 }
 
-void ThreadPool::addThread()
+SDL_semaphore * ThreadPool::getSemaphore()
 {
+	return semaphore;
+}
 
+SDL_cond * ThreadPool::getConditional()
+{
+	return conditional;
 }

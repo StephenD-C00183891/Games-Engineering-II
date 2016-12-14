@@ -24,11 +24,13 @@ public:
 	std::vector<Tile*> closedList;
 	std::vector<Tile*> adjacentList;
 	std::vector<Tile*> path;
+	std::vector<Tile*> fullPath;
+
 
 	std::vector<Tile*>::iterator it;
 
 	Tile* lowest;
-
+	Tile* start_low;
 	void Render(Renderer & r);
 
 	void fillList(int startRow, int startCol, std::vector<std::vector<Tile*>>& _tiles, int lineSize);
@@ -41,7 +43,7 @@ public:
 	void Update(unsigned int deltaTime);
 	void sortByFcost(std::vector<Tile*> openLIst);
 
-	std::vector<Tile*> Path(int startRow, int startCol, Tile * goal, std::vector<std::vector<Tile*>>& _tiles, int lineSize);
+	std::vector<Tile*> Path(int startRow, int startCol, std::vector<Tile*> waypoints, std::vector<std::vector<Tile*>>& _tiles, int lineSize);
 
 	void onEvent(EventListener::Event);
 };

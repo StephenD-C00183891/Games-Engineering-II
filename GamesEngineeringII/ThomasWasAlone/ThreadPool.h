@@ -6,8 +6,11 @@
 #include "Enemy.h"
 #include <vector>
 #include <queue>
+#include <functional>
+#include <thread>
 
-class ThreadPool :public GameObject, public EventListener
+
+class ThreadPool
 {
 
 public:
@@ -15,16 +18,20 @@ public:
 	ThreadPool();
 	~ThreadPool();
 
-	std::queue<Enemy*> enemyThread;
 
+	Enemy* getJob();
 
-	void Update(unsigned int deltaTime);
+	int getWorker(void * data);
 
-	void onEvent(EventListener::Event);
+	void fillQueue(Enemy * enemy);
 
-	void getJob();
-	void worker();
-	void addThread();
+	SDL_mutex * threadLock;
+	SDL_semaphore * semaphore;
+	SDL_cond * conditional;
+
+	SDL_mutex * getLock();
+	SDL_semaphore * getSemaphore();
+	SDL_cond * getConditional();
 
 
 };

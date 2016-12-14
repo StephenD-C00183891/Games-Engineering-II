@@ -7,6 +7,8 @@
 #include "EventListener.h"
 #include "Tile.h"
 
+#include <vector>
+
 class Enemy :public GameObject, public EventListener
 {
 
@@ -15,10 +17,14 @@ public:
 	Enemy();
 	~Enemy();
 
+	std::vector<Tile*> path;
+
 	Rect rect;
 	Colour col;
 	int row;
 	int column;
+	int timer;
+	int pathCount;
 
 
 	void Render(Renderer & r);
