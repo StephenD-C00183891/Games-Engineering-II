@@ -48,6 +48,7 @@ class Game:public EventListener
 
 public:
 	static int threaded(void * data);
+	static void threadedPath(int index, int row, int col);
 	Game();
 	~Game();
 

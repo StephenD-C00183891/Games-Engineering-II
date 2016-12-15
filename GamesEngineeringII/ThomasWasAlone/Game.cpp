@@ -29,38 +29,13 @@ std::vector<std::vector<Tile*>> tiles;
 std::vector <Enemy*> enemies;
 std::vector<Tile*> waypoints;
 astar star;
+
 int lineSize;
 
 bool compare(Tile* i, Tile* j) {
 	int i2 = i->_column;
 	int j2 = j->_column;
 	return (i2>j2);
-}
-
-int Game::threaded(void *data)
-{
-	while (true)
-	{
-		if (jobQueue.size() != 0) {};
-
-		SDL_LockMutex(threadLock);
-		ThreadData tData;
-		if (jobQueue.size() > 0)
-		{
-			tData = jobQueue.front();
-			jobQueue.pop();
-		}
-
-		SDL_UnlockMutex(threadLock);
-
-		if (tData.index != -1)
-		{
-			//enemies[i]->path = star.Path(enemies[i]->row, enemies[i]->column, waypoints[j], tiles, lineSize);
-			enemies[tData.index]->path = star.Path(tData._row, tData._col, waypoints, tiles, lineSize);
-		}
-	}
-
-	return 0;
 }
 
 Game::Game()
@@ -96,19 +71,19 @@ bool Game::init() {
 	Rect vpRect(vpBottomLeft,vpSize);
 	renderer.setViewPort(vpRect);
 
-	lineSize = 50;
+	lineSize = 100;
 	MAXTILES = (lineSize * lineSize);
 	wallSpawn = 12;
-	enemyCount = 2;
+	enemyCount = 5;
 
 	line = 0;
 	column = 0;
 	lineSize = sqrt(MAXTILES);
 
-	//tileWidth = winSize.w / lineSize;
-	//tileHeight = winSize.h / lineSize;
-	tileHeight = 20;
-	tileWidth = 20;
+	tileWidth = winSize.w / lineSize;
+	tileHeight = winSize.h / lineSize;
+	//tileHeight = 10;
+	//tileWidth = 10;
 
 
 	for (int i = 0; i < lineSize; i++)
@@ -232,6 +207,42 @@ bool Game::init() {
 
 	return true;
 }
+
+int Game::threaded(void *data)
+{
+	//while (true)
+	//{
+	if (jobQueue.size() != 0) {};
+
+	ThreadData tData;
+
+	SDL_LockMutex(threadLock);
+
+	if (jobQueue.size() > 0)
+	{
+		tData = jobQueue.front();
+		jobQueue.pop();
+	}
+
+	SDL_UnlockMutex(threadLock);
+
+
+	//threadedPath();
+	threadedPath(tData.index, tData._row, tData._col);
+	//	}
+
+	return 0;
+}
+
+void Game::threadedPath(int index, int row, int col)
+{
+	if (index != -1)
+	{
+		enemies[index]->path = star.Path(row, col, waypoints, tiles, lineSize);
+	}
+}
+
+
 
 void Game::destroy()
 {
