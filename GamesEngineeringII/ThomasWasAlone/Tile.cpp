@@ -30,7 +30,7 @@ void Tile::Render(Renderer& r) {
 
 void Tile::Render2(Renderer& r, int offsetX, int offsetY) {
 
-	r.drawWorldRect(Rect(_rect.pos.x - offsetX, _rect.pos.y - offsetY, _rect.size.w, _rect.size.h), _col);
+	r.drawRect(Rect(_rect.pos.x - offsetX, _rect.pos.y - offsetY, _rect.size.w, _rect.size.h), _col);
 }
 
 

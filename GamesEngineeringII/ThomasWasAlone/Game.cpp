@@ -41,7 +41,7 @@ int Game::threaded(void *data)
 {
 	while (true)
 	{
-		if (jobQueue.size() != 0) { };
+		if (jobQueue.size() != 0) {};
 
 		SDL_LockMutex(threadLock);
 		ThreadData tData;
@@ -55,6 +55,7 @@ int Game::threaded(void *data)
 
 		if (tData.index != -1)
 		{
+			//enemies[i]->path = star.Path(enemies[i]->row, enemies[i]->column, waypoints[j], tiles, lineSize);
 			enemies[tData.index]->path = star.Path(tData._row, tData._col, waypoints, tiles, lineSize);
 		}
 	}
@@ -75,16 +76,15 @@ Game::~Game()
 
 bool Game::init() {	
 	Size2D winSize(800,600);
-	//threadLock = SDL_CreateMutex();
 
 	wS.h = winSize.h;
 	wS.w = winSize.w;
-	cameraRow = 0;
-	cameraCol = 0;
+//	cameraRow = 0;
+	//cameraCol = 0;
 	//creates our renderer, which looks after drawing and the window
 	renderer.init(winSize,"A* Project");
 
-	//camera=(Rect((tileWidth*cameraCol), (tileHeight*cameraRow), 800, 600));
+	camera = new Rect(0, 0, winSize.w, winSize.h);
 
 	//set up the viewport
 	//we want the vp centred on origin and 20 units wide
@@ -96,7 +96,7 @@ bool Game::init() {
 	Rect vpRect(vpBottomLeft,vpSize);
 	renderer.setViewPort(vpRect);
 
-	lineSize = 100;
+	lineSize = 50;
 	MAXTILES = (lineSize * lineSize);
 	wallSpawn = 12;
 	enemyCount = 2;
@@ -105,9 +105,10 @@ bool Game::init() {
 	column = 0;
 	lineSize = sqrt(MAXTILES);
 
-	tileWidth = winSize.w / lineSize;
-	tileHeight = winSize.h / lineSize;
-
+//	tileWidth = winSize.w / lineSize;
+//	tileHeight = winSize.h / lineSize;
+	tileHeight = 20;
+	tileWidth = 20;
 
 	for (int i = 0; i < lineSize; i++)
 	{
@@ -140,6 +141,7 @@ bool Game::init() {
 
 	p1 = new Player(Rect(tiles[0][0]->GetPosition().x, tiles[0][0]->GetPosition().y, tileWidth, tileHeight));
 	tiles[0][0]->_full = true;
+	//tiles[1][0]->marked == true;
 	p1->col = Colour(255, 0, 0);
 	waypoints.push_back(tiles[0][0]);
 
@@ -210,7 +212,7 @@ bool Game::init() {
 			//}
 		//}
 				//star.path.clear();
-				star.fullPath.clear();
+				//star.fullPath.clear();
 	}
 
 	SDL_Thread * thread1 = SDL_CreateThread(threaded, "T1", NULL);
@@ -219,8 +221,8 @@ bool Game::init() {
 
 	inputManager.AddListener(EventListener::Event::LEFT, this);
 	inputManager.AddListener(EventListener::Event::RIGHT, this);
-	inputManager.AddListener(EventListener::Event::UP, p1);
-	inputManager.AddListener(EventListener::Event::DOWN, p1);
+	inputManager.AddListener(EventListener::Event::UP, this);
+	inputManager.AddListener(EventListener::Event::DOWN, this);
 
 	lastTime = LTimer::gameTime();
 
@@ -301,27 +303,27 @@ void Game::render()
 {
 	renderer.clear(Colour(0,0,0));
 
-	//int cameraOffsetX = camera.pos.x * tileWidth;
-	//int cameraOffsetY = camera.pos.y * tileHeight;
+	cOffsetX = camera->pos.x * tileWidth;
+	cOffsetY = camera->pos.y * tileHeight;
 
 	vector< vector<Tile*> >::iterator row;
 	vector<Tile*>::iterator col;
 
-	for (row = tiles.begin(); row != tiles.end(); row++)
+	/*for (row = tiles.begin(); row != tiles.end(); row++)
 	{
 		for (col = row->begin(); col != row->end(); col++)
 		{
 			(*col)->Render(renderer);
 		}
-	}
+	}*/
 
-	//for (int row = camera.pos.y; row < (camera.size.h / tileHeight) + cameraOffsetY; row++)
-	//{
-	//	for (int col = camera.pos.x; col < (camera.size.w / tileWidth) + cameraOffsetX; col++)
-	//	{
-	//		tiles[row][col]->Render2(renderer, cameraOffsetX, cameraOffsetY);
-	//	}
-	//}
+	for (int row = camera->pos.y; row < (camera->size.h / tileHeight) + camera->pos.y; row++)
+	{
+		for (int col = camera->pos.x; col < (camera->size.w / tileWidth) + camera->pos.x; col++)
+		{
+			tiles[row][col]->Render2(renderer, cOffsetX, cOffsetY);
+		}
+	}
 
 	for (int i = 0; i < enemies.size(); i++)
 	{
@@ -363,32 +365,30 @@ void Game::onEvent(EventListener::Event evt) {
 	if (evt == EventListener::Event::QUIT) {
 		quit=true;
 	}
+
 	if (evt == EventListener::Event::LEFT) {
-		if (camera.pos.x >= 0)
+		if (camera->pos.x != 0)
 		{
-			//cameraCol -= 1;
-			camera.pos.x -= 1;
+
+			camera->pos.x -= 1;
 		}
 	}
 	if (evt == EventListener::Event::RIGHT) {
-		if (camera.pos.x +camera.size.w <= tiles[0][lineSize-1]->GetPosition().x)
+		if (camera->pos.x < lineSize - (camera->size.w / tileWidth))
 		{
-			//cameraCol += 1;
-			camera.pos.x += 1;
+			camera->pos.x += 1;
 		}
 	}
 	if (evt == EventListener::Event::UP) {
-		if (camera.pos.y >= 0)
+		if (camera->pos.y != 0)
 		{
-			//cameraRow += 1;
-			camera.pos.y += 1;
+			camera->pos.y -= 1;
 		}
 	}
 	if (evt == EventListener::Event::DOWN) {
-		if (camera.pos.y + camera.size.h < tiles[lineSize-1][0]->GetPosition().y)
+		if (camera->pos.y < lineSize - (camera->size.h / tileHeight))
 		{
-			//cameraRow -= 1;
-			camera.pos.y -= 1;
+			camera->pos.y += 1;
 		}
 	}
 }
