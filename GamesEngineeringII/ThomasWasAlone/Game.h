@@ -21,7 +21,7 @@ class Game:public EventListener
 	std::vector <Tile*> enemyPath;
 	//std::vector<Tile*> waypoints;
 
-	Rect camera;
+	Rect* camera;
 
 	Player* p1;
 	Size2D wS;
@@ -34,8 +34,8 @@ class Game:public EventListener
 	//int lineSize;
 
 	int enemyCount;
-	int cameraRow;
-	int cameraCol;
+	float cOffsetX;
+	float cOffsetY;
 	float tileWidth;
 	float tileHeight;
 	int wallSpawn;
